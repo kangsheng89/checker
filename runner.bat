@@ -35,16 +35,16 @@ SET COMPONENT_GPJ=%COMPONENT_NAME%.gpj
 IF NOT EXIST ".\..\%COMPONENT_GPJ%" GOTO gpj_error
 
 REM Get the top level gpj
-REM SET TOP_GPJ=%PARENT_PATH%\%COMPONENT_NAME:_Impl=_Sandbox%.gpj
-REM IF NOT EXIST "%TOP_GPJ%" GOTO top_gpj_error
+SET TOP_GPJ=%PARENT_PATH%\%COMPONENT_NAME:_Impl=_Sandbox%.gpj
+IF NOT EXIST "%TOP_GPJ%" GOTO top_gpj_error
 
 REM compile project
-REM %GHS_PATH% -top %TOP_GPJ% %COMPONENT_GPJ% -clean -all 
+%GHS_PATH% -top %TOP_GPJ% %COMPONENT_GPJ% -clean -all 
 
-REM %PYTHON_FULL_PATH% RunAnalysis.py ./../Polyspace/Polyspace.bf.psprj
-REM %PYTHON_FULL_PATH% RunAnalysis.py ./../Polyspace/Polyspace.psprj
+%PYTHON_FULL_PATH% RunAnalysis.py ./../Polyspace/Polyspace.bf.psprj
+%PYTHON_FULL_PATH% RunAnalysis.py ./../Polyspace/Polyspace.psprj
 
-%PYTHON_FULL_PATH% color_check.py
+%PYTHON_FULL_PATH% check_polyspace.py
 
 REM end script
 GOTO :end
