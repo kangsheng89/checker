@@ -28,20 +28,23 @@ REM set path to swcsuprt script
 SET SCRIPT_FULL_PATH=%PARENT_PATH%\%SCRIPT_FILE%
 IF NOT EXIST "%SCRIPT_FULL_PATH%" GOTO script_error
 
-./SWCSupport.bat __update_polyspace_files
+REM %PYTHON_FULL_PATH% GenFile.py
 
 REM Get the sub level gpj
 SET COMPONENT_GPJ=%COMPONENT_NAME%.gpj
 IF NOT EXIST ".\..\%COMPONENT_GPJ%" GOTO gpj_error
 
 REM Get the top level gpj
-SET TOP_GPJ=%PARENT_PATH%\%COMPONENT_NAME:_Impl=_Sandbox%.gpj
-IF NOT EXIST "%TOP_GPJ%" GOTO top_gpj_error
+REM SET TOP_GPJ=%PARENT_PATH%\%COMPONENT_NAME:_Impl=_Sandbox%.gpj
+REM IF NOT EXIST "%TOP_GPJ%" GOTO top_gpj_error
 
 REM compile project
-%GHS_PATH% -top %TOP_GPJ% %COMPONENT_GPJ% -clean -all 
-REM %PYTHON_FULL_PATH% check_polyspace.py
-%PYTHON_FULL_PATH% RunAnalysis.py ./../Polyspace/Polyspace.bf.psprj
+REM %GHS_PATH% -top %TOP_GPJ% %COMPONENT_GPJ% -clean -all 
+
+REM %PYTHON_FULL_PATH% RunAnalysis.py ./../Polyspace/Polyspace.bf.psprj
+REM %PYTHON_FULL_PATH% RunAnalysis.py ./../Polyspace/Polyspace.psprj
+
+%PYTHON_FULL_PATH% color_check.py
 
 REM end script
 GOTO :end
@@ -90,3 +93,5 @@ GOTO :end
 
 :end
 ENDLOCAL
+
+pause

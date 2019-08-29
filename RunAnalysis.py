@@ -2,7 +2,6 @@ import os
 import sys
 import re
 import shutil
-import sys
 import time
 import subprocess
 import argparse
@@ -13,10 +12,7 @@ include_path = []
 target_flag = []
 module_flag= []
 
-
-
 polyspace_root_path = "C:\\Program Files\\MATLAB\\R2013b\\polyspace"
-
 bugfinder_rpt_template_path = polyspace_root_path +'\\toolbox\\psrptgen\\templates\\bug_finder\\'
 
 polyspace_exe_path = ''
@@ -41,7 +37,7 @@ def _main():
     parser.add_argument('psprj_file', type=str, help='Polyspace project file')
     
     args = parser.parse_args()
-
+    
     psprj_path = os.path.abspath(args.psprj_file)
     
     if os.path.isfile(psprj_path) and (os.path.splitext(psprj_path)[1]==".psprj"):
@@ -84,8 +80,6 @@ def _main():
         print " Success! Analysis Done!!!!                                         "
         print "===================================================================="
         
-        
-        
     else:
     
         print " Ending Time: "+time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime())
@@ -93,7 +87,8 @@ def _main():
         print " Failed: Incorrect path or file extentions                          "
         print "===================================================================="
         raise IOError("Can't find Polyspace psprj file")
-    
+
+
 def process_source(root):
 
     source_list = root.find('source')
@@ -391,9 +386,9 @@ def gen_launch_polyspace():
     f.write('-options-file '+ '"'+option_command_path+'" ')
     f.write('-results-dir '+ '"'+project_path[:-1]+'" ')
     
-    f.write('> '+ '"'+project_path+'rtelog" ')
+    #f.write('> '+ '"'+project_path+'rtelog" ')
     
-    f.write('2>&1')
+    #f.write('2>&1')
     f.close()
     
 def polyspace_exe(s):

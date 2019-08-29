@@ -4,14 +4,17 @@ import re
 import shutil
 import sys
 import xml.etree.ElementTree as ET
+import numpy as np
+import pandas as pd
+
 
 complexity_thd = 10
-misra_report_path = './Polyspace/~CodeProver/Polyspace-Doc/MISRA-C-report.xml'
-codemetric_report_path = './Polyspace/~BugFinder/Polyspace-Doc/Code_Metrics.xml'
+misra_report_path = './../Polyspace/~CodeProver/Polyspace-Doc/MISRA-C-report.xml'
+codemetric_report_path = './../Polyspace/~BugFinder/Polyspace-Doc/Code_Metrics.xml'
 
 
 def _main():
-
+    print os.getcwd()
     misra_status = False
     codemetric_status = False
     misra_status = misra_check()
