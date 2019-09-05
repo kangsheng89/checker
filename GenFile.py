@@ -53,27 +53,34 @@ def _main():
     
     if (args.bo_pre & args.bo_post & args.bo_zip ) is False:
         parser.print_help()
+        sys.exit(1)
         
     else:
         # -pre
         if args.bo_pre is True:
-            status, res = pre_analysis(com)
-            if status!=0:
+            status_pre, res = pre_analysis(com)
+            if status_pre!=0:
                 print('\n'.join(res))
             else:
                 print res[0]
         # -post
         if args.bo_post is True:
-            status, res = post_analysis(com)
-            if status!=0:
+            status_post, res = post_analysis(com)
+            if status_post!=0:
                 print('\n'.join(res))
             else:
                 print res[0]
         
         # -z
         if args.bo_zip is True:
-            status, str = com.zip_polyspace()
+            status_zip, str = com.zip_polyspace()
             print str
+        
+        status = status_pre+status_post+status_zip
+        if status != 0:
+            sys.exit(1)
+       
+    sys.exit(0)
     
 
         

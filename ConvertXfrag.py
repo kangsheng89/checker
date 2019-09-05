@@ -23,81 +23,41 @@ def _main():
 
     global tool_path
     tool_path = os.getcwd()
+    csv_folder = os.mkdir(tool_path+'/csv_result')
     component_impl_path = os.path.abspath(tool_path+"./../../")
     component_impl_src_path = os.path.abspath(component_impl_path+"/src/")
     #get list of file with c extension under impl/src
     src_list = list_file(component_impl_src_path)
   
     get_xfrag_file()
-    
-    
-    checker = [
-        misra_error_path ,
-        misra_warning_path ,
-        orange_path ,
-        red_path ,
-        gray_path ,
-        unreachable_branch_path
-    ]
-    strx = 0
-    for x in checker:
-        strx +=1
-        res_noerr, df = get_contents(x)
+
+    checker = {
+        misra_error_path:'misra_error' ,
+        misra_warning_path:'misra_warning' ,
+        orange_path:'orange' ,
+        red_path:'red' ,
+        gray_path:'gray' ,
+        unreachable_branch_path:'unreachable_branch' 
+    }
+
+    checker_res = []
+    for k,v in checker.items():
+
+        res, df = get_contents(k)
        
-        if res_noerr == False :
+        if res is False :
             #filter dataframe with only src file from the src folder
             df = matchstr_in_df(df,src_list)
             
             if df is not None:
                 print df
-                df.to_csv(component_impl_src_path+'/'+str(strx)+'.csv')
-                for i in range(len(df)):
-                    # print df.iloc[i].title
-                    #print df
-                    pattern_str = '^[A-z]:\\\\([A-z0-9-_+]+\\\\)*([A-z0-9]+\.(c|C))$'
-                    pattern = re.compile(pattern_str)
-                    result = pattern.match(df.iloc[i].title)
-                    
-                    # the title column is matching long path format
-                    if result is not None:
-                        path = df.iloc[i].title
-                    else :
-                        path = os.path.abspath(component_impl_src_path + '/' + df.iloc[i].title)
-                        
-                    # check the warning justification inside code
-                    #warn, line = check_warning (path , df.iloc[i].Line, df.iloc[i].Rule)
-                    
+                df.to_csv(tool_path+'/'+v+'.csv')
         else:
-            print df
+            checker_res.append (df)
+    
                 
-def check_warning(path, linenumber,rule_ID):
-    line = ''
-    file = open(path, 'r')
-    contents = file.readlines()
-    warning = False
-    if linenumber >= 0:
-        index = int(linenumber)-1
-        print contents[index]
-        rule_ID = rule_ID.replace('.', '\.')
-        pattern_str = '\*.+'+rule_ID+'.+\*'
-        
-        pattern = re.compile(pattern_str)
-        result = re.search(pattern,contents[index])
-        
-        #search line before the code if there are comment
-        result_2nd = re.search(pattern,contents[index-1])
-       
-        if (result is None) & (result_2nd is None):
-            warning = True
-            line = contents[index].rstrip()
-            
-    file.close()
-    return warning, line
-    
 def list_file(dir):
-    #dir = os.path.abspath(component_impl_path+"/src/")
-    
-    #print component_impl_src_path
+
     files = []
     # r=root, d=directories, f = files
     for r, d, f in os.walk(dir):
