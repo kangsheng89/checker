@@ -83,7 +83,7 @@ def codemetric_check():
                 function_name = item.attrib['name']
                 cyclomatic_complexity = item.attrib['vg']
                 #if cyclomatic complexity is more than 10
-                if int(cyclomatic_complexity) >= complexity_thd:
+                if int(cyclomatic_complexity) > complexity_thd:
                     
                     #check the metric for the local file only, include function will be ingnored
                     result = check_metric (file.attrib['name'],function_name)
