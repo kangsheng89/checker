@@ -26,7 +26,6 @@ ECHO.
 ECHO Download the python component, or run the SWCSupport script manually.
 ECHO.
 EXIT /B 1
-GOTO :end
 
 :end
 ENDLOCAL
