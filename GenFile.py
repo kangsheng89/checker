@@ -51,11 +51,15 @@ def _main():
     
     comp_name = com.name[:-5]
     
-    if (args.bo_pre & args.bo_post & args.bo_zip ) is False:
+    if ((args.bo_pre is False) & (args.bo_post is False) & (args.bo_zip is False)) is True:
         parser.print_help()
         sys.exit(1)
         
     else:
+
+        status_pre = 0
+        status_post = 0
+        status_zip = 0
         # -pre
         if args.bo_pre is True:
             status_pre, res = pre_analysis(com)
@@ -76,7 +80,7 @@ def _main():
             status_zip, str = com.zip_polyspace()
             print str
         
-        status = status_pre+status_post+status_zip
+        status = (status_pre | status_post | status_zip)
         if status != 0:
             sys.exit(1)
        
