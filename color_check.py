@@ -32,29 +32,29 @@ def _main():
     get_xfrag_file()
     
     
-    checker_pair = [
-        (misra_error_path , "MISRA-C errors"),
-        (misra_warning_path , "MISRA-C warnings"),
-        (orange_path , "orange checks"),
-        (red_path , "red checks"),
-        (gray_path , "gray checks"),
-        (unreachable_branch_path , "unreachable branch checks")
+    checker = [
+        misra_error_path ,
+        misra_warning_path ,
+        orange_path ,
+        red_path ,
+        gray_path ,
+        unreachable_branch_path
     ]
-    
-    checker = OrderedDict(checker_pair)
-    
+    strx = 0
     for x in checker:
-    
-        res_noerr, df = get_contents(x, checker[x])
-        print df
+        strx +=1
+        res_noerr, df = get_contents(x)
+       
         if res_noerr == False :
             #filter dataframe with only src file from the src folder
             df = matchstr_in_df(df,src_list)
-
+            
             if df is not None:
+                print df
+                df.to_csv(component_impl_src_path+'/'+str(strx)+'.csv')
                 for i in range(len(df)):
                     # print df.iloc[i].title
-
+                    #print df
                     pattern_str = '^[A-z]:\\\\([A-z0-9-_+]+\\\\)*([A-z0-9]+\.(c|C))$'
                     pattern = re.compile(pattern_str)
                     result = pattern.match(df.iloc[i].title)
@@ -66,7 +66,7 @@ def _main():
                         path = os.path.abspath(component_impl_src_path + '/' + df.iloc[i].title)
                         
                     # check the warning justification inside code
-                    warn, line = check_warning (path , df.iloc[i].Line, df.iloc[i].Rule)
+                    #warn, line = check_warning (path , df.iloc[i].Line, df.iloc[i].Rule)
                     
         else:
             print df
@@ -117,7 +117,7 @@ def matchstr_in_df(table,filelist):
     if df.empty == False:
         return df
     
-def get_contents(xml_path, str_keyword):
+def get_contents(xml_path):
     
 
     tree = ET.parse(xml_path)
@@ -125,7 +125,7 @@ def get_contents(xml_path, str_keyword):
     root_title = root.find("title")
     result = []
     
-    res, res_str = check_no_error(root_title.tail, str_keyword)
+    res, res_str = check_no_error(root_title.tail)
     
     
     if res == False:
@@ -149,12 +149,22 @@ def get_contents(xml_path, str_keyword):
                 elements = row.iter("entry")
                 entry_contents_set = [file.text]
                 for entry in elements:
-                    check = entry.find("emphasis")
-                    if check is not None:
-                        entry_contents_set.append(check.text)
-                    else:
-                        entry_contents_set.append(entry.text)
-                
+                    entry_text = entry.text
+                    
+                    emphasis = entry.find("emphasis")
+                    if emphasis is not None:
+                        entry_text = emphasis.text
+                        
+                    simple_list = entry.find("simplelist")
+                    if simple_list is not None:
+                        member = simple_list.iter("member")
+                        des = ''
+                        for item in member:
+                            des += item.text+'\n'
+                        entry_text = des
+                        
+                    entry_contents_set.append(entry_text)
+                         
                 #unpack tuple and assign to the arg from Table type
                 result.append( Table(*entry_contents_set) )
     else:
@@ -192,15 +202,17 @@ def get_xfrag_file():
     misra_warning_path, res = findInfiles(codeprover_xml_path, "MISRA-C  Warnings") 
     unreachable_branch_path, res = findInfiles(codeprover_xml_path, "Proven Unreachable Code Branches")
     
-def check_no_error(str, checker):
-    result_str = 'No {} were found.'.format(checker)
+def check_no_error(str):
+
+    pattern = re.compile('No .+ were found.')
+    result = pattern.match(str.strip())
     
-    if str.strip() == result_str :
+    if result is not None :
         res = True
         #print no_error
     else:
         res = False
-    return res, result_str
+    return res, str.strip()
 
 
 

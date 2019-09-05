@@ -10,7 +10,6 @@ import argparse
 import glob
 import mako.template
 import nxtr
-
 import swcsuprt
 
 
@@ -24,14 +23,26 @@ def _main():
 
     global tool_path
     global component_impl_path
+    global comp_name
     tool_path = os.getcwd()
     component_impl_path = os.path.abspath(tool_path+"./../../")
     
-    t0 = time.time()
     parser = argparse.ArgumentParser(description='Run SWCSupport Gen file')
-    #parser.add_argument('psprj_file', type=str, help='Polyspace project file')
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('-pre', action='store_true', default=False, 
+                    dest='bo_pre',
+                    help='Generate File for Pre-Analysis')
+                    
+    group.add_argument('-post', action='store_true', default=False, 
+                dest='bo_post',
+                help='Generate File for Post-Analysis')
+                
+    parser.add_argument('-z', action='store_true', default=False, 
+            dest='bo_zip',
+            help='Zipped generated file')
     
     args = parser.parse_args()
+    
     
     #override all the constant and resolved the path
     override_swcsuprt_constants() 
@@ -40,29 +51,68 @@ def _main():
     
     comp_name = com.name[:-5]
     
-    status, result = com.generate_greenhills()
-    print result
+    if (args.bo_pre & args.bo_post & args.bo_zip ) is False:
+        parser.print_help()
+        
+    else:
+        # -pre
+        if args.bo_pre is True:
+            status, res = pre_analysis(com)
+            if status!=0:
+                print('\n'.join(res))
+            else:
+                print res[0]
+        # -post
+        if args.bo_post is True:
+            status, res = post_analysis(com)
+            if status!=0:
+                print('\n'.join(res))
+            else:
+                print res[0]
+        
+        # -z
+        if args.bo_zip is True:
+            status, str = com.zip_polyspace()
+            print str
     
-    status, result = com.generate_davinci()
-    print result
-    
-    status, result = com.generate_integration_files()
-    print result
 
-    status, result = com.generate_generation_script()
-    print result
-    
+        
+def pre_analysis(comp):
+
     ddpath = os.path.join(os.path.normpath(os.path.join(component_impl_path, '..')), comp_name + '_Design', 'Design', comp_name + '_DataDict.m')
-    status, result = com.generate_polyspace_files(ddpath)
-    print result
+    pre_gen = [ comp.generate_greenhills(),
+                comp.generate_davinci(),
+                comp.generate_integration_files(),
+                comp.generate_generation_script(),
+                comp.generate_polyspace_files(ddpath),
+                generate_sandbox_prj(swcsuprt,comp)
+              ] 
+              
+    return pre_post_analysis(pre_gen, 'Pre')
     
-    status, result = generate_sandbox_prj(swcsuprt,com)
-    print result
-    
-    
-    #psprj_path = os.path.abspath(args.psprj_file)
 
+def post_analysis(comp):
 
+    post_gen = [comp.create_reports() ]
+    return pre_post_analysis(post_gen, 'Post')
+
+def pre_post_analysis(list, pre_post):
+
+    status = 0
+    res = []
+    for func in list:
+        stat, result = func
+        res.append (result)
+        status += stat
+        
+    if status == 0:
+        res.insert(0, pre_post + ' Analysis File Gen Successful !!!')
+    
+    else:
+        res.insert(0, pre_post + ' Analysis File Gen Failed !!!')
+        
+    return status, res
+    
 def override_swcsuprt_constants():
     # general constants
     swcsuprt._window_title = 'SWC Support'
