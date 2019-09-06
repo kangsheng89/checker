@@ -37,21 +37,21 @@ ECHO %GHS_PATH%
 ECHO.
 ECHO install GHS in exact location.
 ECHO.
-EXIT /B 1
+EXIT /B 3
 
 :gpj_error
 ECHO.
 ECHO The gpj project was not found at the expected location:
 ECHO %COMPONENT_GPJ%
 ECHO.
-EXIT /B 1
+EXIT /B 3
 
 :top_gpj_error
 ECHO.
 ECHO The top gpj sandbox project was not found at the expected location:
 ECHO %TOP_GPJ%
 ECHO.
-EXIT /B 1
+EXIT /B 3
 
 :end
 ENDLOCAL

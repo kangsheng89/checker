@@ -17,13 +17,18 @@ gray_path = ''
 misra_error_path = ''
 misra_warning_path = ''
 unreachable_branch_path = ''
-
+ 
 
 def _main():
 
     global tool_path
+    global csv_folder
     tool_path = os.getcwd()
-    csv_folder = os.mkdir(tool_path+'/csv_result')
+    csv_folder = os.path.abspath(tool_path+'/csv_result')
+    #create result folder
+    if os.path.exists(csv_folder) is False:
+        os.mkdir(csv_folder)
+        
     component_impl_path = os.path.abspath(tool_path+"./../../")
     component_impl_src_path = os.path.abspath(component_impl_path+"/src/")
     #get list of file with c extension under impl/src
@@ -42,7 +47,8 @@ def _main():
 
     checker_res = []
     for k,v in checker.items():
-
+    
+        csv_file = os.path.abspath(csv_folder+'/'+v+'.csv')
         res, df = get_contents(k)
        
         if res is False :
@@ -50,10 +56,21 @@ def _main():
             df = matchstr_in_df(df,src_list)
             
             if df is not None:
-                print df
-                df.to_csv(tool_path+'/'+v+'.csv')
+                if os.path.exists(csv_file) is True:
+                    os.remove(csv_file)
+                print 'Generated '+v+'.csv'
+                df.to_csv(csv_file)
         else:
             checker_res.append (df)
+
+
+    file = csv_folder+'\pass_result.txt'
+    if os.path.exists(file) is True:
+        os.remove(file)
+    print 'Generated pass_result.txt'
+    print_to_file(file, '\n'.join(checker_res))
+    
+    sys.exit(0)
     
                 
 def list_file(dir):
@@ -85,7 +102,6 @@ def get_contents(xml_path):
     result = []
     
     res, res_str = check_no_error(root_title.tail)
-    
     
     if res == False:
         tables = root.iter("table")
@@ -173,7 +189,12 @@ def check_no_error(str):
         res = False
     return res, str.strip()
 
+def print_to_file(file, s):
 
+    f= open(file,"a+")
+    f.write(s)
+    f.write('\n')
+    f.close()
 
 #main function
 if __name__ == '__main__':

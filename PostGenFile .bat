@@ -26,7 +26,7 @@ ECHO %PYTHON_FULL_PATH%
 ECHO.
 ECHO Download the python component, or run the SWCSupport script manually.
 ECHO.
-EXIT /B 1
+EXIT /B 3
 
 :end
 ENDLOCAL
