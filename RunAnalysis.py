@@ -68,16 +68,20 @@ def _main():
         print " Running Analysis                                                   "
         print "===================================================================="
         
-        subprocess.call( project_path+"\launchingCommand.bat")
+        result = subprocess.call( project_path+"\launchingCommand.bat")
         
         t1 = time.time()
         total = t1-t0
+        
         
         print "===================================================================="
         print " Elapsed Time: "+ str(total) +"s"
         print " Ending Time: "+time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime())
         print "===================================================================="
-        print " Success! Analysis Done!!!!                                         "
+        if result != 0:
+            print " Failed, return code", result 
+        else:
+            print " Success! Analysis Done!!!!                                         "
         print "===================================================================="
         
     else:
