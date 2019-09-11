@@ -137,13 +137,10 @@ def misra(path,  linenum, rule ):
     # check the warning justification inside code
     if rule in MISRA_allow_tag :
         warn, line = check_misra_warning (path , linenum, str(rule))
-        print "here"
-        print warn
+
     else:
         warn +=1
         line =  check_error (path , linenum)
-        print "me"
-        print str(rule)
 
     return warn, line
 
