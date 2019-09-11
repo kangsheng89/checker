@@ -11,7 +11,7 @@ REM set path to python binary
 SET PYTHON_FULL_PATH=%PARENT_PATH%\%PYTHON_EXE%
 IF NOT EXIST "%PYTHON_FULL_PATH%" GOTO python_error
 
-%PYTHON_FULL_PATH% check_polyspace.py
+%PYTHON_FULL_PATH% color_check.py
 IF %ERRORLEVEL% NEQ 0 (EXIT /B 1)
 
 REM end script
