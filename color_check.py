@@ -56,6 +56,8 @@ def _main():
             if csv[:-4] in checker:
                 file = os.path.abspath(csv_folder+'/'+csv)
                 res = process_csv(file, csv[:-4])
+                print file
+                print res + "items not justified "
                 count += res
             else:
                 print "Failed, please check and fix errors/warnings in "+csv
@@ -210,8 +212,8 @@ def check_misra_warning(path, linenumber,rule_ID):
     file.close()
     
         
-    print line
-    print warning
+    #print line
+    #print warning
     
     return warning, line
     
