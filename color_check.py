@@ -47,7 +47,9 @@ def _main():
         sys.exit(1)
         
     else:
-    
+        
+        print (open_pass_res(csv_folder+'/pass_result.txt'))
+        
         csv_list = list_file(csv_folder)
         count  = 0
         not_justify_dict ={}
@@ -60,14 +62,16 @@ def _main():
                 if res != 0:
                     not_justify_dict.update({csv: (res, check)})
                 count += res
+                
+            elif csv[:-4] in checker_ignore:
+                count += 1
+                print "Mandatory to fix errors/warnings in "+csv
+                
             else:
-                print "Failed, please check and fix errors/warnings in "+csv
+                pass
                 
         if count != 0:
         
-            
-            print (open_pass_res(csv_folder+'/pass_result.txt'))
-            
             for (file, items) in not_justify_dict.items():
                  print str(items[0]) + ' items of warnings '+ str(items[1]) +' from '+ file + ' is not justified'
             
@@ -77,7 +81,6 @@ def _main():
         
         else:
             
-            print (open_pass_res(csv_folder+'/pass_result.txt'))
             
             for csv in csv_list:
                 if csv[:-4] in checker:
