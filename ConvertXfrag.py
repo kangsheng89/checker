@@ -28,6 +28,9 @@ def _main():
     #create result folder
     if os.path.exists(csv_folder) is False:
         os.mkdir(csv_folder)
+    else:
+        shutil.rmtree(csv_folder)
+        os.mkdir(csv_folder)
         
     component_impl_path = os.path.abspath(tool_path+"./../../")
     component_impl_src_path = os.path.abspath(component_impl_path+"/src/")
