@@ -50,19 +50,28 @@ def _main():
     
         csv_list = list_file(csv_folder)
         count  = 0
-        
+        not_justify_dict ={}
         #res = process_csv(csv_folder+'/unreachable_branch.csv', 'unreachable_branch')
         for csv in csv_list:
             if csv[:-4] in checker:
                 file = os.path.abspath(csv_folder+'/'+csv)
-                res = process_csv(file, csv[:-4])
+                res, check = process_csv(file, csv[:-4])
+
+                if res != 0:
+                    not_justify_dict.update({csv: (res, check)})
                 count += res
             else:
                 print "Failed, please check and fix errors/warnings in "+csv
                 
         if count != 0:
+        
+            
             print (open_pass_res(csv_folder+'/pass_result.txt'))
-            print "Checker Failed"
+            
+            for (file, items) in not_justify_dict.items():
+                 print str(items[0]) + ' items of warnings '+ str(items[1]) +' from '+ file + ' is not justified'
+            
+            print "CHECKER FAILED"
             
             sys.exit(1)
         
@@ -74,7 +83,7 @@ def _main():
                 if csv[:-4] in checker:
                     print 'All the items in '+csv+ ' has been justified'
                     
-            print "Checker Pass"
+            print "CHECKER PASS"
             sys.exit(0)
         
 
@@ -91,10 +100,11 @@ def process_csv(file, checker):
         #print rules
         
         if checker == "misra_warning":
-            check = (df['Rule'].unique())
+            check = list(df['Rule'].unique().astype(str))
+        elif (checker == "orange") | (checker == "unreachable_branch"):
+            check = list(df['Check'].unique().astype(str))
         else:
-            check = (df['Check'].unique())
-        
+            pass
         
         count = 0
         for i in range(len(df)):
@@ -119,23 +129,22 @@ def process_csv(file, checker):
             if checker == "misra_warning":
             
                 warn, line = misra(path, df.iloc[i].Line, df.iloc[i].Rule)
+                if (warn is 0) & (str(df.iloc[i].Rule) in check):
+                    check.remove(str(df.iloc[i].Rule))
                 
             elif (checker == "orange") | (checker == "unreachable_branch"):
             
                 warn , line = check_polyspace_warning(path,df.iloc[i].Line, df.iloc[i].Check )
+                if (warn is 0) & (str(df.iloc[i].Check) in check):
+                    checkremove(str(df.iloc[i].Check))
+                
             else:
             
-                pass
-
-            if warn != 0:
-                #print path
-                #print str(df.iloc[i].Rule)
-                #print line
                 pass
             
             count += warn
     
-    return count
+    return count, check
     
     
     
