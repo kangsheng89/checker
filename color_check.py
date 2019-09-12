@@ -56,8 +56,6 @@ def _main():
             if csv[:-4] in checker:
                 file = os.path.abspath(csv_folder+'/'+csv)
                 res = process_csv(file, csv[:-4])
-                print file
-                print res
                 count += res
             else:
                 print "Failed, please check and fix errors/warnings in "+csv
