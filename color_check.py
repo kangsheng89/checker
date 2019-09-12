@@ -56,8 +56,6 @@ def _main():
             if csv[:-4] in checker:
                 file = os.path.abspath(csv_folder+'/'+csv)
                 res = process_csv(file, csv[:-4])
-                print file
-                print res + "items not justified "
                 count += res
             else:
                 print "Failed, please check and fix errors/warnings in "+csv
@@ -84,16 +82,26 @@ def _main():
 def process_csv(file, checker):
     #print file
     #print checker
+    
+    check = []
     df = pd.read_csv(file)
 
     if df is not None:
         #rules = (df['Rule'].unique())
         #print rules
+        
+        if checker == "misra_warning":
+            check = (df['Rule'].unique())
+        else:
+            check = (df['Check'].unique())
+        
+        
         count = 0
         for i in range(len(df)):
             # print df.iloc[i].title
             #print df
             warn = 0
+           
             _path, file = os.path.split(df.iloc[i].title)
 
             pattern_str = '^[A-z]:\\\\([A-z0-9-_+]+\\\\)*([A-z0-9]+\.(c|C))$'
