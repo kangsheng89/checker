@@ -73,7 +73,11 @@ def _main():
         if count != 0:
         
             for (file, items) in not_justify_dict.items():
-                 print str(items[0]) + ' items of warnings '+ str(items[1]) +' from '+ file + ' is not justified'
+                print str(items[0]) + ' items of warnings '+ str(items[1]) +' from '+ file + ' is not justified'
+                list_not_allow =  list(set(items[1]).difference(list(map(str,MISRA_allow_tag))))
+                if list_not_allow:
+                    print 'Mandatory to fix all warnings of ' + str(list_not_allow)
+
             
             print "CHECKER FAILED"
             
@@ -157,9 +161,8 @@ def misra(path,  linenum, rule ):
     # check the warning justification inside code
     if rule in MISRA_allow_tag :
         warn, line = check_misra_warning (path , linenum, str(rule))
-
     else:
-        warn +=1
+        warn = 1
         line =  check_error (path , linenum)
 
     return warn, line
@@ -176,67 +179,60 @@ def list_file(dir):
     return files
     
 def check_polyspace_warning(path, linenumber,check):
-    line = ''
-    file = open(path, 'r')
-    contents = file.readlines()
+    
     warning = 0
+    pattern_str = '\*.*\[CodeProver Warning\].*'+check+'.+\*'
+    
+    res_search, line = search_above_line(path, linenumber, pattern_str, 3)
 
-    if linenumber >= 0:
-        index = int(linenumber)-1
-        #print contents[index]
-        
-        pattern_str = '\*.*\[CodeProver Warning\].*'+check+'.+\*'
-        #print pattern_str
-        
-        pattern = re.compile(pattern_str,re.I)
-        result = re.search(pattern,contents[index])
-        
-        #search line before the code if there are comment
-        result_2nd = re.search(pattern,contents[index-1])
-        
-        #search line before the code if there are comment
-        result_3rd = re.search(pattern,contents[index-2])
+    if res_search is False:
+        warning = 1
 
-       
-        if (result is None) & (result_2nd is None) & (result_3rd is None):
-            warning = 1
-            line = contents[index].rstrip()
-        
-    file.close()
     return warning, line
 
 def check_misra_warning(path, linenumber,rule_ID):
 
+    warning = 0
+    
+    rule_ID = rule_ID.replace('.', '\.')
+    pattern_str = '\*.*'+rule_ID+'.*\*'
+    
     res = find_declaration_Misra(path, rule_ID)
+    res_search, line = search_above_line(path, linenumber, pattern_str, 3)
+
+    if (res_search is False) & (res is None) :
+        warning = 1
+        
+    return warning, line
+
+def search_above_line(path, linenumber, regex, number_of_search):
     
     line = ''
+    pattern = re.compile(regex,re.I)
     file = open(path, 'r')
     contents = file.readlines()
-    warning = 0
+    
     if linenumber >= 0:
+    
         index = int(linenumber)-1
-        #print contents[index]
-        rule_ID = rule_ID.replace('.', '\.')
-        pattern_str = '\*.*'+rule_ID+'.*\*'
+        line = contents[index].rstrip()
         
-        pattern = re.compile(pattern_str)
-        result = re.search(pattern,contents[index])
-        
-        #search line before the code if there are comment
-        result_2nd = re.search(pattern,contents[index-1])
-       
-        if (result is None) & (result_2nd is None) & (res is None):
-            warning = 1
-            line = contents[index].rstrip()
-            
+        found = 0 
+        for x in range(0,number_of_search - 1):
+            result = re.search(pattern,contents[index-x])
+            if result is not None:
+                found += 1
+
     file.close()
     
+    if found == 0:
+        success = False
+    else:
+        success = True
         
-    #print line
-    #print warning
-    
-    return warning, line
-    
+    return success, line
+
+
 def find_declaration_Misra(path, rule ):
     
     file = open(path, 'r')
